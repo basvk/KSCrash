@@ -32,6 +32,8 @@
 
 /** The URL to connect to. */
 @property(nonatomic,readwrite,retain) NSURL* url;
+/** Send Apple style formatted crash reports as well */
+@property BOOL sendOutAppleFmtAsWell;
 
 + (instancetype) sharedInstance;
 

@@ -34,6 +34,7 @@
 #import "KSCrashReportSinkEMail.h"
 #import "KSCrashReportSinkQuincyHockey.h"
 #import "KSCrashReportSinkStandard.h"
+#import "KSCrashReportSinkStandardWithAppleFmt.h"
 #import "KSCrashReportSinkVictory.h"
 #import "KSCrashReportWriter.h"
 #import "KSJSONCodecObjC.h"

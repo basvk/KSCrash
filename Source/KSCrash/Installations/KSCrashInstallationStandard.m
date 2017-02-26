@@ -28,12 +28,14 @@
 #import "KSCrashInstallationStandard.h"
 #import "KSCrashInstallation+Private.h"
 #import "KSCrashReportSinkStandard.h"
+#import "KSCrashReportSinkStandardWithAppleFmt.h"
 #import "KSCrashReportFilterBasic.h"
 
 
 @implementation KSCrashInstallationStandard
 
 @synthesize url = _url;
+@synthesize sendOutAppleFmtAsWell = _sendOutAppleFmtAsWell;
 
 + (instancetype) sharedInstance
 {
@@ -54,7 +56,13 @@
 - (id<KSCrashReportFilter>) sink
 {
     KSCrashReportSinkStandard* sink = [KSCrashReportSinkStandard sinkWithURL:self.url];
-    return [KSCrashReportFilterPipeline filterWithFilters:[sink defaultCrashReportFilterSet], nil];
+    
+    if (self.sendOutAppleFmtAsWell) {
+        KSCrashReportSinkStandardWithAppleFmt *sinkAppleFmt = [KSCrashReportSinkStandardWithAppleFmt sinkWithURL:self.url];
+        return [KSCrashReportFilterPipeline filterWithFilters:[sink defaultCrashReportFilterSet], [sinkAppleFmt defaultCrashReportFilterSet], nil];
+    } else {
+        return [KSCrashReportFilterPipeline filterWithFilters:[sink defaultCrashReportFilterSet], nil];
+    }
 }
 
 @end
