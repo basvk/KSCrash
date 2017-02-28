@@ -64,7 +64,6 @@
           onCompletion:(KSCrashReportFilterCompletion) onCompletion
 {
     
-    NSError* error = nil;
     NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:self.url
                                                            cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                        timeoutInterval:15];
@@ -76,6 +75,8 @@
         
         if (idx < reports.count - 1) {
             [concatenatedReports appendData:[@"\014" dataUsingEncoding:NSASCIIStringEncoding]];
+        } else {
+            *stop = YES;
         }
     }];
     
