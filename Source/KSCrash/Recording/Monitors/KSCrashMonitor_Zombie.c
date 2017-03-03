@@ -32,14 +32,14 @@
 
 #include <objc/runtime.h>
 #include <stdlib.h>
-
+#include <libkern/OSAtomic.h>
 
 #define CACHE_SIZE 0x8000
+
 
 // Compiler hints for "if" statements
 #define likely_if(x) if(__builtin_expect(x,1))
 #define unlikely_if(x) if(__builtin_expect(x,0))
-
 
 typedef struct
 {
@@ -51,6 +51,8 @@ static volatile Zombie* g_zombieCache;
 static unsigned g_zombieHashMask;
 
 static volatile bool g_isEnabled = false;
+
+static OSSpinLock g_zombieLock = OS_SPINLOCK_INIT;
 
 static struct
 {
@@ -116,17 +118,21 @@ static inline void handleDealloc(const void* self)
     volatile Zombie* cache = g_zombieCache;
     likely_if(cache != NULL)
     {
+        volatile OSSpinLock *zombieLock = &g_zombieLock;
+        OSSpinLockLock(zombieLock);
         Zombie* zombie = (Zombie*)cache + hashIndex(self);
-        zombie->object = self;
         Class class = object_getClass((id)self);
+        zombie->object = self;
         zombie->className = class_getName(class);
         for(; class != nil; class = class_getSuperclass(class))
         {
             unlikely_if(class == g_lastDeallocedException.class)
             {
                 storeException(self);
+                break;
             }
         }
+        OSSpinLockUnlock(zombieLock);
     }
 }
 
