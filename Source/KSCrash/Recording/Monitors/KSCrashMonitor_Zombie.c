@@ -109,8 +109,11 @@ static bool copyStringIvar(const void* self, const char* ivarName, char* buffer,
 static void storeException(const void* exception)
 {
     g_lastDeallocedException.address = exception;
-    copyStringIvar(exception, "name", g_lastDeallocedException.name, sizeof(g_lastDeallocedException.name));
-    copyStringIvar(exception, "reason", g_lastDeallocedException.reason, sizeof(g_lastDeallocedException.reason));
+    void *ivar;
+    object_getInstanceVariable((id)exception, "name", &ivar);
+    ksobjc_copyStringContents(ivar, g_lastDeallocedException.name, sizeof(g_lastDeallocedException.name));
+    object_getInstanceVariable((id)exception, "reason", &ivar);
+    ksobjc_copyStringContents(ivar, g_lastDeallocedException.reason, sizeof(g_lastDeallocedException.reason));
 }
 
 static inline void handleDealloc(const void* self)
